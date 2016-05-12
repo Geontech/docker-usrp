@@ -3,7 +3,7 @@
 # This file is protected by Copyright. Please refer to the COPYRIGHT file
 # distributed with this source distribution.
 #
-# This file is part of REDHAWK rest-python.
+# This file is part of Docker REDHAWK USRP.
 #
 # REDHAWK rest-python is free software: you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
