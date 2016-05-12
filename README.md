@@ -30,13 +30,13 @@ Note that it may be necessary to run the above commands as root if you are not p
 
 #### Run as N210
 
-Use this script to run the REDHAWK USRP UHD Image as an N210 host. This script requires the IP address of the Domain Manager to connect to and the IP address of the N210 as an argument. This script optionally accepts a Domain Name for the Device Manager to connect to, which defaults to REDHAWK_DEV.
+Use this script to run the REDHAWK USRP UHD Image as an N210 host. This script requires the IP address of the Domain Manager to connect to and the IP address of the N210 as arguments. This script optionally accepts a Domain Name for the Device Manager to connect to, which defaults to REDHAWK_DEV.
 
 	./runAsN210 <DomainManager IP Address> <N210 IP Address> [Domain Manager Name]
 
 #### Run as B2XX
 
-Use this script to run the REDHAWK USRP UHD Image as a B2XX host. This script requires the IP address of the Domain Manager to connect to. This script optionally accepts a Domain Name for the Device Manager to connect to, which defaults to REDHAWK_DEV.
+Use this script to run the REDHAWK USRP UHD Image as a B2XX host. This script requires the IP address of the Domain Manager to connect to as an argument. This script optionally accepts a Domain Name for the Device Manager to connect to, which defaults to REDHAWK_DEV.
 
 	./runAsB2XX <Domain Manager IP Address> [Domain Manager Name]
 
