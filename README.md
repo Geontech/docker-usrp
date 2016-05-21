@@ -56,9 +56,9 @@ To install the system configuration files, use the provided install.sh script:
 
 This will install several files:
 
-	99-usrp-b205.rules	Udev rules for starting and stopping the redhawk-usrp-uhd-b205 service when a b205 is added and removed, respectively
-	redhawk-usrp-uhd-b205	The init.d script for the redhawk-usrp-uhd-b205 service which is responsible for calling the runAsB2XX.sh script
-	runAsB2XX.sh		The script from above, which will be installed as /usr/bin/redhawk-usrp-uhd-b205 and will launch the b205 redhawk-usrp-uhd container
+	system-config/99-usrp-b205.rules	Udev rules for starting and stopping the redhawk-usrp-uhd-b205 service when a b205 is added and removed, respectively
+	system-config/redhawk-usrp-uhd-b205	The init.d script for the redhawk-usrp-uhd-b205 service which is responsible for calling the runAsB2XX.sh script
+	runAsB2XX.sh				The script from above, which will be installed as /usr/bin/redhawk-usrp-uhd-b205 and will launch the b205 redhawk-usrp-uhd container
 	
 It will also create the log directory (/var/log/redhawk-usrp-uhd-b205) and reload the udev rules (udevadm control --reload-rules).
 
