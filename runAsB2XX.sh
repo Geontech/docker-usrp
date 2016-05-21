@@ -27,6 +27,20 @@ function checkImage() {
 	fi
 }
 
+function runInteractive() {
+	ipToUse=$1
+	domainName=$2
+	shift 2
+	docker run --net=host --rm -e OMNISERVICEIP=$ipToUse -e RHUSRPARGS="--usrptype=b200" -e RHUSRPNAME="B205_" -e RHDOMAINNAME=$domainName --privileged -v /dev/bus/usb:/dev/bus/usb -i -t "$@" redhawk-usrp-uhd bash -l -c "uhd_find_devices && nodeBooter -d \$SDRROOT/dev/nodes/usrpNode_\$RHUSRPNAME\$USRP_ID/DeviceManager.dcd.xml" 
+}
+
+function runNonInteractive() {
+	ipToUse=$1
+	domainName=$2
+	shift 2
+	docker run --net=host --rm -e OMNISERVICEIP=$ipToUse -e RHUSRPARGS="--usrptype=b200" -e RHUSRPNAME="B205_" -e RHDOMAINNAME=$domainName --privileged -v /dev/bus/usb:/dev/bus/usb "$@" redhawk-usrp-uhd
+}
+
 # Make sure the correct images are built already
 checkImage "redhawk-deps"
 
@@ -49,20 +63,43 @@ if [ $? == 0 ]; then
 	exit 1
 fi
 
-# Check if the Domain Manager IP address is provided
-if [ "$1" == "" ]; then
+# Check provided options
+domainName="REDHAWK_DEV"
+ipToUse=""
+teletypeEnabled=true
+
+while getopts "i:d?n" opt; do
+	case $opt in
+		i)
+			ipToUse=$OPTARG
+			;;
+		d)
+			domainName=$OPTARG
+			;;
+		n)
+			teletypeEnabled=false
+			;;
+		*)
+			if [ "$opt" == "--" ]; then
+				shift
+				break
+			fi
+	esac
+done
+
+# Grab the rest of the arguments and pass them to docker run
+shift $((OPTIND-1))
+
+# Check if the Domain Manager IP address was provided
+if [ "$ipToUse" == "" ]; then
 	echo "The IP address of the Domain Manager must be provided"
 	exit 1
 fi
 
-# Check if a Domain Manager is provided
-domainName="$2"
-
-if [ "$2" == "" ]; then
-	domainName="REDHAWK_DEV"
+# Run the docker container as a device manager
+if [ "$teletypeEnabled" = true ]; then
+	runInteractive $ipToUse $domainName "$@"
+else
+	runNonInteractive $ipToUse $domainName "$@"
 fi
-
-# Run the docker container as a domain
-docker run --net=host -e OMNISERVICEIP=$1 -e RHUSRPARGS="--usrptype=b200" -e RHUSRPNAME="B205_" -e RHDOMAINNAME=$domainName --privileged -v /dev/bus/usb:/dev/bus/usb -i -t redhawk-usrp-uhd bash -l -c "uhd_find_devices && nodeBooter -d \$SDRROOT/dev/nodes/usrpNode_\$RHUSRPNAME\$USRP_ID/DeviceManager.dcd.xml"
-
 

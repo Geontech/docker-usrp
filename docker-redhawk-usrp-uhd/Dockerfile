@@ -105,6 +105,9 @@ RUN echo '${SDRROOT}/dev/devices/rh/USRP_UHD/nodeconfig.py --domainname $RHDOMAI
 # Add a call to uhd_images_downloader in the /root/.bashrc to download the latest images
 RUN echo '/usr/local/lib64/uhd/utils/uhd_images_downloader.py' | tee -a /root/.bashrc
 
+# Copy the non-interactive script
+COPY nonInteractive.sh /
+
 # Delete the build area
 WORKDIR /
 RUN rm -rf /tmp
@@ -113,4 +116,4 @@ RUN rm -rf /tmp
 EXPOSE 2809
 EXPOSE 11169
 
-CMD ["/bin/bash", "-l"]
+CMD ["/nonInteractive.sh"]

@@ -27,6 +27,22 @@ function checkImage() {
 	fi
 }
 
+function runInteractive() {
+	omniIpToUse=$1
+	usrpIpToUse=$2
+	domainName=$3
+	shift 3
+	docker run --net=host --rm -e OMNISERVICEIP=$omniIpToUse -e RHUSRPARGS="--usrpip=$usrpIpToUse" -e RHUSRPNAME="N210_" -e RHDOMAINNAME=$domainName -i -t "$@" redhawk-usrp-uhd bash -l -c "uhd_find_devices && nodeBooter -d \$SDRROOT/dev/nodes/usrpNode_\$RHUSRPNAME\$USRP_ID/DeviceManager.dcd.xml" 
+}
+
+function runNonInteractive() {
+	omniIpToUse=$1
+	usrpIpToUse=$2
+	domainName=$3
+	shift 3
+	docker run --net=host --rm -e OMNISERVICEIP=$omniIpToUse -e RHUSRPARGS="--usrpip=$usrpIpToUse" -e RHUSRPNAME="N210_" -e RHDOMAINNAME=$domainName "$@" redhawk-usrp-uhd
+}
+
 # Make sure the correct images are built already
 checkImage "redhawk-deps"
 
@@ -49,23 +65,53 @@ if [ $? == 0 ]; then
 	exit 1
 fi
 
-# Check if the IP addresses are provided
-if [ "$1" == "" ]; then
+# Check provided options
+domainName="REDHAWK_DEV"
+omniIpToUse=""
+teletypeEnabled=true
+usrpIpToUse=""
+
+while getopts "i:u:d?n" opt; do
+	case $opt in
+		i)
+			omniIpToUse=$OPTARG
+			;;
+		d)
+			domainName=$OPTARG
+			;;
+		n)
+			teletypeEnabled=false
+			;;
+		u)
+			usrpIpToUse=$OPTARG
+			;;
+		*)
+			if [ "$opt" == "--" ]; then
+				shift
+				break
+			fi
+	esac
+done
+
+# Grab the rest of the arguments and pass them to docker run
+shift $((OPTIND-1))
+
+# Check if the Domain Manager IP address was provided
+if [ "$omniIpToUse" == "" ]; then
 	echo "The IP address of the Domain Manager must be provided"
 	exit 1
 fi
 
-if [ "$2" == "" ]; then
+# Check if the N210 IP address was provided
+if [ "$usrpIpToUse" == "" ]; then
 	echo "The IP address of the N210 must be provided"
 	exit 1
 fi
 
-# Check if a Domain Manager is provided
-domainName="$3"
-
-if [ "$3" == "" ]; then
-	domainName="REDHAWK_DEV"
+# Run the docker container as a device manager
+if [ "$teletypeEnabled" = true ]; then
+	runInteractive $omniIpToUse $usrpIpToUse $domainName "$@"
+else
+	runNonInteractive $omniIpToUse $usrpIpToUse $domainName "$@"
 fi
 
-# Run the docker container as an N210 host
-docker run --net=host -e OMNISERVICEIP=$1 -e RHUSRPARGS="--usrpip=$2" -e RHUSRPNAME="N210_" -e RHDOMAINNAME=$domainName -i -t redhawk-usrp-uhd bash -l -c "nodeBooter -d \$SDRROOT/dev/nodes/usrpNode_\$RHUSRPNAME\$USRP_ID/DeviceManager.dcd.xml"
