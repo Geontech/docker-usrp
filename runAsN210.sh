@@ -35,12 +35,19 @@ function runInteractive() {
 	docker run --net=host --rm -e OMNISERVICEIP=$omniIpToUse -e RHUSRPARGS="--usrpip=$usrpIpToUse" -e RHUSRPNAME="N210_" -e RHDOMAINNAME=$domainName -i -t "$@" redhawk-usrp-uhd bash -l -c "uhd_find_devices && nodeBooter -d \$SDRROOT/dev/nodes/usrpNode_\$RHUSRPNAME\$USRP_ID/DeviceManager.dcd.xml" 
 }
 
+function handler() {
+	kill -s SIGINT $PID
+}
+
 function runNonInteractive() {
 	omniIpToUse=$1
 	usrpIpToUse=$2
 	domainName=$3
 	shift 3
-	docker run --net=host --rm -e OMNISERVICEIP=$omniIpToUse -e RHUSRPARGS="--usrpip=$usrpIpToUse" -e RHUSRPNAME="N210_" -e RHDOMAINNAME=$domainName "$@" redhawk-usrp-uhd
+	docker run --net=host --rm -e OMNISERVICEIP=$omniIpToUse -e RHUSRPARGS="--usrpip=$usrpIpToUse" -e RHUSRPNAME="N210_" -e RHDOMAINNAME=$domainName "$@" redhawk-usrp-uhd &
+	PID=$!
+	trap handler SIGINT
+	wait $PID
 }
 
 # Make sure the correct images are built already
@@ -103,7 +110,7 @@ if [ "$omniIpToUse" == "" ]; then
 fi
 
 # Check if the N210 IP address was provided
-if [ "$usrpIpToUse" == "" ]; then
+if [ "usrpIpToUse" == "" ]; then
 	echo "The IP address of the N210 must be provided"
 	exit 1
 fi

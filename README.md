@@ -56,11 +56,14 @@ To install the system configuration files, use the provided install.sh script:
 
 This will install several files:
 
-	system-config/99-usrp-b205.rules	Udev rules for starting and stopping the redhawk-usrp-uhd-b205 service when a b205 is added and removed, respectively
-	system-config/redhawk-usrp-uhd-b205	The init.d script for the redhawk-usrp-uhd-b205 service which is responsible for calling the runAsB2XX.sh script
-	runAsB2XX.sh				The script from above, which will be installed as /usr/bin/redhawk-usrp-uhd-b205 and will launch the b205 redhawk-usrp-uhd container
+	system-config/99-usrp-b205.rules		Udev rules for starting and stopping the redhawk-usrp-uhd-b205 service when a b205 is added and removed, respectively
+	system-config/redhawk-usrp-uhd-b205		The init.d script for the redhawk-usrp-uhd-b205 service which is responsible for calling the runAsB2XX.sh script
+	system-config/redhawk-usrp-uhd-n210-watcher 	The init.d script for the redhawk-usrp-uhd-n210-watcher service which is responsible for launching the python script of the same name
+	system-config/redhawk-usrp-uhd-n210-watcher.py	The python script responsible for monitoring available n210s and controlling the lifecycles of their containers
+	runAsB2XX.sh					The script from above, which will be installed as /usr/bin/redhawk-usrp-uhd-b205 and will launch the b205 redhawk-usrp-uhd container
+	runAsN210.sh					The script from above, which will be installed as /usr/bin/redhawk-usrp-uhd-n210 and will launch the n210 redhawk-usrp-uhd container
 	
-It will also create the log directory (/var/log/redhawk-usrp-uhd-b205) and reload the udev rules (udevadm control --reload-rules).
+It will also create the log directories (/var/log/redhawk-usrp-uhd-b205 and /var/log/redhawk-usrp-uhd-n210-watcher) and reload the udev rules (udevadm control --reload-rules).
 
 ### Notes
 
@@ -68,6 +71,9 @@ The redhawk-usrp-uhd-b205 service only supports a single b205 per host (for now)
 
 ### Additional Configuration
 
-By default, the Omni IP address (typically the Domain Manager IP address) is 127.0.0.1. To change this, create a file called /etc/sysconfig/redhawk-usrp-uhd-b205 which exports the variable OMNISERVICEIP to contain the correct IP address.  For example:
+The default Omni IP address and Domain Manager name are 127.0.0.1 and REDHAWK_DEV, respectively. To change these, export one or both of the variables in the appropriate /etc/sysconfig file. That is, to change this for the B205, add the export(s) to the /etc/sysconfig/redhawk-usrp-uhd-b205 script. Similarly, for the N210, add the export(s) to the /etc/sysconfig/redhawk-usrp-uhd-n210-watcher script.
+
+An example configuration is given below:
 
 	export OMNISERVICEIP=192.168.1.2
+	export RHDOMAINNAME=REDHAWK_DEV_2_0

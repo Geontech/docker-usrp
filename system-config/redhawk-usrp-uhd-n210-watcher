@@ -1,25 +1,25 @@
 #!/bin/sh
 #
-# redhawk-usrp-uhd-b205      init file for starting up the REDHAWK USRP UHD B205 Container
+# redhawk-usrp-uhd-n210-watcher      init file for starting up the REDHAWK USRP UHD N210 Containers
 #
 # chkconfig:   - 20 80
-# description: Starts and stops the REDHAWK USRP UHD B205 Container
+# description: Starts and stops the REDHAWK USRP UHD N210 Containers
 #
 
 # Source function library.
 . /etc/rc.d/init.d/functions
 
-exec="/usr/bin/redhawk-usrp-uhd-b205"
-prog="redhawk-usrp-uhd-b205"
+exec="/usr/bin/redhawk-usrp-uhd-n210-watcher"
+prog="redhawk-usrp-uhd-n210-watcher"
 OMNISERVICEIP="127.0.0.1"
 RHDOMAINNAME="REDHAWK_DEV"
 
 [ -e /etc/sysconfig/$prog ] && . /etc/sysconfig/$prog
 
-logdir="/var/log/redhawk-usrp-uhd-b205/"
-logfile="/var/log/redhawk-usrp-uhd-b205/error.log"
-options=" -i $OMNISERVICEIP -d $RHDOMAINNAME -n -- --cidfile $logdir/$prog.cid > $logdir/log"
-lockfile="/var/lock/subsys/redhawk-usrp-uhd-b205"
+logdir="/var/log/redhawk-usrp-uhd-n210-watcher/"
+logfile="/var/log/redhawk-usrp-uhd-n210-watcher/error.log"
+options=" -i $OMNISERVICEIP -l $logdir -d $RHDOMAINNAME > $logdir/log"
+lockfile="/var/lock/subsys/redhawk-usrp-uhd-n210-watcher"
 
 start() {
     [ -x $exec ] || exit 5
@@ -33,11 +33,8 @@ start() {
 
 stop() {
     echo -n $"Stopping $prog: "
-    cid=$(<$logdir/$prog.cid)
-    docker kill -s SIGINT $cid > /dev/null
-    rm $logdir/$prog.cid
-    rm -f $lockfile
-    success
+    killproc $prog -2
+    retval=$?
     echo
     return $retval
 }

@@ -28,17 +28,24 @@ function checkImage() {
 }
 
 function runInteractive() {
-	ipToUse=$1
+	omniIpToUse=$1
 	domainName=$2
 	shift 2
-	docker run --net=host --rm -e OMNISERVICEIP=$ipToUse -e RHUSRPARGS="--usrptype=b200" -e RHUSRPNAME="B205_" -e RHDOMAINNAME=$domainName --privileged -v /dev/bus/usb:/dev/bus/usb -i -t "$@" redhawk-usrp-uhd bash -l -c "uhd_find_devices && nodeBooter -d \$SDRROOT/dev/nodes/usrpNode_\$RHUSRPNAME\$USRP_ID/DeviceManager.dcd.xml" 
+	docker run --net=host --rm -e OMNISERVICEIP=$omniIpToUse -e RHUSRPARGS="--usrptype=b200" -e RHUSRPNAME="B205_" -e RHDOMAINNAME=$domainName --privileged -v /dev/bus/usb:/dev/bus/usb -i -t "$@" redhawk-usrp-uhd bash -l -c "uhd_find_devices && nodeBooter -d \$SDRROOT/dev/nodes/usrpNode_\$RHUSRPNAME\$USRP_ID/DeviceManager.dcd.xml"
+}
+
+function handler() {
+	kill -s SIGINT $PID
 }
 
 function runNonInteractive() {
-	ipToUse=$1
+	omniIpToUse=$1
 	domainName=$2
 	shift 2
-	docker run --net=host --rm -e OMNISERVICEIP=$ipToUse -e RHUSRPARGS="--usrptype=b200" -e RHUSRPNAME="B205_" -e RHDOMAINNAME=$domainName --privileged -v /dev/bus/usb:/dev/bus/usb "$@" redhawk-usrp-uhd
+	docker run --net=host --rm -e OMNISERVICEIP=$omniIpToUse -e RHUSRPARGS="--usrptype=b200" -e RHUSRPNAME="B205_" -e RHDOMAINNAME=$domainName --privileged -v /dev/bus/usb:/dev/bus/usb "$@" redhawk-usrp-uhd &
+	PID=$!
+	trap handler SIGINT
+	wait $PID
 }
 
 # Make sure the correct images are built already
@@ -65,13 +72,13 @@ fi
 
 # Check provided options
 domainName="REDHAWK_DEV"
-ipToUse=""
+omniIpToUse=""
 teletypeEnabled=true
 
 while getopts "i:d?n" opt; do
 	case $opt in
 		i)
-			ipToUse=$OPTARG
+			omniIpToUse=$OPTARG
 			;;
 		d)
 			domainName=$OPTARG
@@ -91,15 +98,15 @@ done
 shift $((OPTIND-1))
 
 # Check if the Domain Manager IP address was provided
-if [ "$ipToUse" == "" ]; then
+if [ "$omniIpToUse" == "" ]; then
 	echo "The IP address of the Domain Manager must be provided"
 	exit 1
 fi
 
 # Run the docker container as a device manager
 if [ "$teletypeEnabled" = true ]; then
-	runInteractive $ipToUse $domainName "$@"
+	runInteractive $omniIpToUse $domainName "$@"
 else
-	runNonInteractive $ipToUse $domainName "$@"
+	runNonInteractive $omniIpToUse $domainName "$@"
 fi
 
