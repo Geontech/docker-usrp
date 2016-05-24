@@ -11,14 +11,15 @@
 
 exec="/usr/bin/redhawk-usrp-uhd-b205"
 prog="redhawk-usrp-uhd-b205"
+CONTAINERNAME="rhb205"
 OMNISERVICEIP="127.0.0.1"
 RHDOMAINNAME="REDHAWK_DEV"
 
 [ -e /etc/sysconfig/$prog ] && . /etc/sysconfig/$prog
 
-logdir="/var/log/redhawk-usrp-uhd-b205/"
-logfile="/var/log/redhawk-usrp-uhd-b205/error.log"
-options=" -i $OMNISERVICEIP -d $RHDOMAINNAME -n -- --cidfile $logdir/$prog.cid > $logdir/log"
+logdir="/var/log/redhawk-usrp-uhd-b205"
+logfile="${logdir}/log"
+options=" -i $OMNISERVICEIP -d $RHDOMAINNAME -n -- --name=\"${CONTAINERNAME}\" > ${logfile}"
 lockfile="/var/lock/subsys/redhawk-usrp-uhd-b205"
 
 start() {
@@ -33,9 +34,7 @@ start() {
 
 stop() {
     echo -n $"Stopping $prog: "
-    cid=$(<$logdir/$prog.cid)
-    docker kill -s SIGINT $cid > /dev/null
-    rm $logdir/$prog.cid
+    docker kill -s SIGINT $CONTAINERNAME > /dev/null
     rm -f $lockfile
     success
     echo

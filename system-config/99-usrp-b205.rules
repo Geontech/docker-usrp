@@ -1,2 +1,2 @@
-SUBSYSTEMS=="usb", ATTRS{idVendor}=="2500", ATTRS{idProduct}=="0022", GROUP:="usrp", MODE:="0660", ACTION="add", RUN+="service redhawk-usrp-uhd-b205 start"
-SUBSYSTEMS=="usb", ATTRS{idVendor}=="2500", ATTRS{idProduct}=="0022", GROUP:="usrp", MODE:="0660", ACTION="remove", RUN+="service redhawk-usrp-uhd-b205 stop"
+SUBSYSTEMS=="usb", ENV{ID_VENDOR_ID}=="2500", ENV{ID_MODEL_ID}=="0022", ACTION=="add", RUN+="/sbin/service redhawk-usrp-uhd-b205 start"
+SUBSYSTEMS=="usb", ENV{ID_VENDOR_ID}=="2500", ENV{ID_MODEL_ID}=="0022", ACTION=="remove", RUN+="/sbin/service redhawk-usrp-uhd-b205 stop"

@@ -75,7 +75,7 @@ domainName="REDHAWK_DEV"
 omniIpToUse=""
 teletypeEnabled=true
 
-while getopts "i:d?n" opt; do
+while getopts "i:d:n" opt; do
 	case $opt in
 		i)
 			omniIpToUse=$OPTARG
