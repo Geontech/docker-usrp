@@ -78,7 +78,7 @@ omniIpToUse=""
 teletypeEnabled=true
 usrpIpToUse=""
 
-while getopts "i:u:d?n" opt; do
+while getopts "i:u:d:n" opt; do
 	case $opt in
 		i)
 			omniIpToUse=$OPTARG
